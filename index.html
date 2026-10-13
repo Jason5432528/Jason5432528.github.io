@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>滑坡泥石流&野火一体化监测节点 — 实时数据平台</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mqtt@5/dist/mqtt.min.js"></script>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7;
+  --surface: #fcfcfb;
+  --ink: #0b0b0b;
+  --ink2: #52514e;
+  --muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11,11,11,0.10);
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #6250d6;
+  --good: #0ca30c; --critical: #d03b3b;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d;
+  --surface: #1a1a19;
+  --ink: #f0efec;
+  --ink2: #c3c2b7;
+  --muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255,255,255,0.10);
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #9085e9;
+  --good: #0ca30c; --critical: #e66767;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+  background: var(--page); color: var(--ink); min-height: 100vh;
+}
+.hidden { display: none !important; }
+
+#gate {
+  position: fixed; inset: 0; z-index: 100; background: var(--page);
+  display: flex; align-items: center; justify-content: center;
+}
+.gate-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 36px 32px; width: 320px;
+}
+.gate-card h1 { font-size: 18px; margin-bottom: 6px; }
+.gate-card .sub { color: var(--ink2); font-size: 13px; margin-bottom: 22px; }
+.gate-card input {
+  width: 100%; padding: 10px 12px; border: 1px solid var(--axis);
+  border-radius: 8px; background: var(--surface); color: var(--ink); font-size: 15px;
+}
+.gate-card button {
+  width: 100%; padding: 10px; margin-top: 10px; border: none; border-radius: 8px;
+  background: var(--s1); color: #fff; font-size: 15px; cursor: pointer;
+}
+.gate-card .err { color: var(--critical); font-size: 13px; margin-top: 10px; min-height: 18px; }
+.gate-card .hint { color: var(--muted); font-size: 12px; margin-top: 12px; text-align: center; }
+
+header {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 14px 20px; border-bottom: 1px solid var(--border); background: var(--surface);
+}
+header h1 { font-size: 16px; font-weight: 600; }
+header .spacer { flex: 1; }
+.pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 12px; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--border);
+}
+.pill .dot { width: 8px; height: 8px; border-radius: 50%; }
+.icon-btn {
+  border: 1px solid var(--border); background: transparent; color: var(--ink);
+  border-radius: 8px; padding: 6px 12px; font-size: 13px; cursor: pointer;
+}
+
+main { max-width: 1180px; margin: 0 auto; padding: 16px 20px 40px; }
+.tiles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 16px; }
+.tile { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+.tile .label { font-size: 12px; color: var(--ink2); margin-bottom: 6px; }
+.tile .value { font-size: 28px; font-weight: 600; letter-spacing: -0.5px; }
+.tile .value .unit { font-size: 13px; font-weight: 400; color: var(--muted); margin-left: 3px; }
+
+.charts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.charts .wide { grid-column: 1 / -1; }
+.chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 12px 4px; }
+.chart-card .title { font-size: 13px; color: var(--ink2); margin-bottom: 2px; }
+.chart { width: 100%; height: 200px; }
+
+.table-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; overflow-x: auto; }
+.table-card .title { font-size: 13px; color: var(--ink2); margin-bottom: 6px; }
+.legend-note { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th, td { padding: 6px 8px; text-align: left; border-bottom: 1px solid var(--grid); }
+th { color: var(--muted); font-weight: 500; font-size: 11px; }
+td.num, th.num { font-variant-numeric: tabular-nums; text-align: right; }
+tr:last-child td { border-bottom: none; }
+tr.alert-row { background: color-mix(in srgb, var(--critical) 8%, transparent); }
+tr.warn-row { background: color-mix(in srgb, #fab219 8%, transparent); }
+tr.alert-row td:first-child { border-left: 3px solid var(--critical); }
+tr.warn-row td:first-child { border-left: 3px solid #fab219; }
+.badge { font-size: 10px; padding: 2px 7px; border-radius: 999px; margin-left: 6px; white-space: nowrap; }
+.badge-fire { background: var(--critical); color: #fff; }
+.badge-vib { background: #fab219; color: #1a1a1a; }
+
+@media (max-width: 900px) {
+  .tiles { grid-template-columns: repeat(2, 1fr); }
+  .charts { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div class="gate-card">
+    <h1>监测节点数据平台</h1>
+    <div class="sub">滑坡泥石流 &amp; 野火一体化监测系统</div>
+    <input id="pin" type="password" placeholder="访问口令" inputmode="numeric">
+    <button onclick="doGate()">进 入</button>
+    <div class="err" id="gerr"></div>
+    <div class="hint">默认口令 123456（静态站口令仅作演示遮挡）</div>
+  </div>
+</div>
+
+<header class="hidden" id="main">
+  <h1>🛰️ 滑坡泥石流&amp;野火一体化监测节点</h1>
+  <span class="spacer"></span>
+  <span class="pill"><span class="dot" id="mqtt-dot"></span><span id="mqtt-text">连接中…</span></span>
+  <span class="pill">消息 <b id="msg-count">0</b> 条</span>
+  <button class="icon-btn" onclick="toggleTheme()">🌓</button>
+</header>
+
+<main class="hidden" id="content">
+  <div class="tiles">
+    <div class="tile"><div class="label">环境温度</div><div class="value"><span id="v-t">--</span><span class="unit">°C</span></div></div>
+    <div class="tile"><div class="label">环境湿度</div><div class="value"><span id="v-h">--</span><span class="unit">%RH</span></div></div>
+    <div class="tile"><div class="label">电池电压</div><div class="value"><span id="v-v">--</span><span class="unit">V</span></div></div>
+    <div class="tile"><div class="label">烟雾浓度</div><div class="value"><span id="v-s">--</span><span class="unit"></span></div></div>
+    <div class="tile"><div class="label">信号强度</div><div class="value"><span id="v-rssi">--</span><span class="unit">%</span></div></div>
+  </div>
+
+  <div class="charts">
+    <div class="chart-card"><div class="title">环境温度（°C）</div><div class="chart" id="c1"></div></div>
+    <div class="chart-card"><div class="title">环境湿度（%RH）</div><div class="chart" id="c2"></div></div>
+    <div class="chart-card wide"><div class="title">三轴振动（g）</div><div class="chart" id="c3"></div></div>
+  </div>
+
+  <div class="table-card">
+    <div class="title">最近消息（新→旧，仅本页面会话内数据）</div>
+    <div class="legend-note">🔥 烟雾超标（&gt;0.3）　⚠️ 振动异常（|a|&gt;0.3）</div>
+    <table>
+      <thead><tr><th>时间</th><th>节点</th><th class="num">温度°C</th><th class="num">湿度%</th><th class="num">电压V</th><th class="num">烟雾</th><th class="num">信号%</th></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</main>
+
+<script>
+const PIN = "123456";           // 访问口令（静态站无法做真鉴权，仅演示用）
+const WS_URL = "wss://broker.emqx.io:8084/mqtt";
+const TOPIC = "diansai/node1/data";
+
+let history = [];
+let charts = null;
+
+const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+function doGate() {
+  if (document.getElementById('pin').value === PIN) {
+    document.getElementById('gate').classList.add('hidden');
+    document.getElementById('main').classList.remove('hidden');
+    document.getElementById('content').classList.remove('hidden');
+    connect();
+  } else {
+    document.getElementById('gerr').textContent = '口令错误';
+  }
+}
+
+function connect() {
+  const client = mqtt.connect(WS_URL, {
+    clientId: 'web_' + Math.random().toString(16).slice(2, 10),
+    clean: true,
+  });
+  client.on('connect', () => {
+    client.subscribe(TOPIC);
+    setMqtt(true);
+  });
+  client.on('close', () => setMqtt(false));
+  client.on('message', (topic, payload) => {
+    try {
+      const d = JSON.parse(payload.toString());
+      d.ts = d.ts || Date.now() / 1000;
+      history.push(d);
+      if (history.length > 300) history.shift();
+      render();
+    } catch (e) { /* 忽略非 JSON */ }
+  });
+}
+
+function setMqtt(up) {
+  const dot = document.getElementById('mqtt-dot');
+  const txt = document.getElementById('mqtt-text');
+  dot.style.background = up ? css('--good') : css('--critical');
+  txt.textContent = up ? '● MQTT 在线' : '● MQTT 离线';
+}
+
+function baseOption(time, data, color, unit) {
+  return {
+    animation: false,
+    grid: { left: 44, right: 12, top: 14, bottom: 22 },
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'cross', label: { backgroundColor: css('--ink2') } },
+      valueFormatter: (v) => v == null ? '-' : Number(v).toFixed(2) + ' ' + unit,
+    },
+    xAxis: {
+      type: 'category', data: time, boundaryGap: false,
+      axisLine: { lineStyle: { color: css('--axis') } },
+      axisTick: { show: false },
+      axisLabel: { color: css('--muted'), fontSize: 10, hideOverlap: true },
+    },
+    yAxis: {
+      type: 'value', scale: true,
+      splitLine: { lineStyle: { color: css('--grid') } },
+      axisLabel: { color: css('--muted'), fontSize: 10 },
+      name: unit, nameTextStyle: { color: css('--muted'), fontSize: 10 },
+    },
+    series: [{
+      type: 'line', data: data, showSymbol: false,
+      lineStyle: { width: 2, color: color }, itemStyle: { color: color },
+    }],
+  };
+}
+
+function vibOption(time, d) {
+  const series = ['ax', 'ay', 'az'].map((k, i) => ({
+    name: k.toUpperCase() + '轴', type: 'line', data: d.map(x => x[k]),
+    showSymbol: false, lineStyle: { width: 2, color: [css('--s3'), css('--s4'), css('--s5')][i] },
+    itemStyle: { color: [css('--s3'), css('--s4'), css('--s5')][i] },
+  }));
+  return {
+    animation: false,
+    grid: { left: 44, right: 12, top: 26, bottom: 22 },
+    legend: { data: ['X轴', 'Y轴', 'Z轴'], top: 0, itemWidth: 16, itemHeight: 2, textStyle: { color: css('--ink2'), fontSize: 11 } },
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'cross', label: { backgroundColor: css('--ink2') } },
+      valueFormatter: (v) => v == null ? '-' : Number(v).toFixed(3) + ' g',
+    },
+    xAxis: {
+      type: 'category', data: time, boundaryGap: false,
+      axisLine: { lineStyle: { color: css('--axis') } },
+      axisTick: { show: false },
+      axisLabel: { color: css('--muted'), fontSize: 10, hideOverlap: true },
+    },
+    yAxis: {
+      type: 'value', scale: true,
+      splitLine: { lineStyle: { color: css('--grid') } },
+      axisLabel: { color: css('--muted'), fontSize: 10 },
+      name: 'g', nameTextStyle: { color: css('--muted'), fontSize: 10 },
+    },
+    series,
+  };
+}
+
+function render() {
+  if (!charts) {
+    charts = [echarts.init(document.getElementById('c1')),
+              echarts.init(document.getElementById('c2')),
+              echarts.init(document.getElementById('c3'))];
+  }
+  const last = history[history.length - 1] || {};
+  const f = (v, d) => v == null ? '--' : Number(v).toFixed(d);
+  document.getElementById('v-t').textContent = f(last.t, 1);
+  document.getElementById('v-h').textContent = f(last.h, 1);
+  document.getElementById('v-v').textContent = f(last.v, 2);
+  document.getElementById('v-s').textContent = f(last.smoke, 3);
+  document.getElementById('v-rssi').textContent = last.rssi != null ? last.rssi : '--';
+  document.getElementById('msg-count').textContent = history.length;
+
+  const time = history.map(d => new Date(d.ts * 1000).toLocaleTimeString('zh-CN', { hour12: false }));
+  charts[0].setOption(baseOption(time, history.map(d => d.t), css('--s1'), '°C'));
+  charts[1].setOption(baseOption(time, history.map(d => d.h), css('--s2'), '%RH'));
+  charts[2].setOption(vibOption(time, history));
+
+  document.getElementById('tbody').innerHTML = history.slice(-20).reverse().map(d => {
+    const fire = d.smoke != null && d.smoke > 0.3;
+    const vib = d.ax != null && (Math.abs(d.ax) > 0.3 || Math.abs(d.ay) > 0.3);
+    const cls = fire ? 'alert-row' : (vib ? 'warn-row' : '');
+    const badge = fire ? '<span class="badge badge-fire">🔥 烟雾超标</span>'
+                 : vib ? '<span class="badge badge-vib">⚠️ 振动异常</span>' : '';
+    return `<tr class="${cls}">
+      <td class="num">${new Date(d.ts * 1000).toLocaleTimeString('zh-CN', { hour12: false })}${badge}</td>
+      <td>${d.id || '--'}</td>
+      <td class="num">${f(d.t, 1)}</td>
+      <td class="num">${f(d.h, 1)}</td>
+      <td class="num">${f(d.v, 2)}</td>
+      <td class="num">${f(d.smoke, 3)}</td>
+      <td class="num">${d.rssi != null ? d.rssi : '--'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleTheme() {
+  const el = document.documentElement;
+  el.dataset.theme = el.dataset.theme === 'dark' ? 'light' : 'dark';
+  if (charts) { charts.forEach(c => c.dispose()); charts = null; }
+  render();
+}
+
+window.addEventListener('resize', () => charts && charts.forEach(c => c.resize()));
+</script>
+</body>
+</html>
