@@ -19,6 +19,7 @@
   --border: rgba(11,11,11,0.10);
   --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #6250d6;
   --good: #0ca30c; --critical: #d03b3b;
+  --shadow: 0 1px 3px rgba(11,11,11,0.05);
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
@@ -32,6 +33,7 @@
   --border: rgba(255,255,255,0.10);
   --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #9085e9;
   --good: #0ca30c; --critical: #e66767;
+  --shadow: 0 1px 3px rgba(0,0,0,0.4);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -40,64 +42,89 @@ body {
 }
 .hidden { display: none !important; }
 
+/* ---------- 口令门 ---------- */
 #gate {
   position: fixed; inset: 0; z-index: 100; background: var(--page);
   display: flex; align-items: center; justify-content: center;
 }
 .gate-card {
   background: var(--surface); border: 1px solid var(--border);
-  border-radius: 12px; padding: 36px 32px; width: 320px;
+  border-radius: 14px; padding: 38px 34px; width: 330px; box-shadow: var(--shadow);
 }
-.gate-card h1 { font-size: 18px; margin-bottom: 6px; }
-.gate-card .sub { color: var(--ink2); font-size: 13px; margin-bottom: 22px; }
+.gate-card .logo { font-size: 30px; text-align: center; margin-bottom: 8px; }
+.gate-card h1 { font-size: 18px; text-align: center; margin-bottom: 4px; }
+.gate-card .sub { color: var(--ink2); font-size: 13px; text-align: center; margin-bottom: 24px; }
 .gate-card input {
-  width: 100%; padding: 10px 12px; border: 1px solid var(--axis);
-  border-radius: 8px; background: var(--surface); color: var(--ink); font-size: 15px;
+  width: 100%; padding: 11px 14px; border: 1px solid var(--axis);
+  border-radius: 9px; background: var(--surface); color: var(--ink); font-size: 15px;
 }
+.gate-card input:focus { outline: 2px solid var(--s1); border-color: transparent; }
 .gate-card button {
-  width: 100%; padding: 10px; margin-top: 10px; border: none; border-radius: 8px;
+  width: 100%; padding: 11px; margin-top: 12px; border: none; border-radius: 9px;
   background: var(--s1); color: #fff; font-size: 15px; cursor: pointer;
 }
-.gate-card .err { color: var(--critical); font-size: 13px; margin-top: 10px; min-height: 18px; }
-.gate-card .hint { color: var(--muted); font-size: 12px; margin-top: 12px; text-align: center; }
+.gate-card button:hover { opacity: 0.92; }
+.gate-card .err { color: var(--critical); font-size: 13px; margin-top: 10px; min-height: 18px; text-align: center; }
+.gate-card .hint { color: var(--muted); font-size: 12px; margin-top: 14px; text-align: center; }
 
+/* ---------- 头部 ---------- */
 header {
   display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-  padding: 14px 20px; border-bottom: 1px solid var(--border); background: var(--surface);
+  padding: 16px 22px; border-bottom: 1px solid var(--border);
+  background: var(--surface); position: sticky; top: 0; z-index: 10;
 }
-header h1 { font-size: 16px; font-weight: 600; }
+.brand { display: flex; flex-direction: column; }
+.brand h1 { font-size: 16px; font-weight: 700; }
+.brand .sub { font-size: 12px; color: var(--muted); }
 header .spacer { flex: 1; }
 .pill {
   display: inline-flex; align-items: center; gap: 7px;
   font-size: 12px; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--border);
+  background: var(--surface);
 }
 .pill .dot { width: 8px; height: 8px; border-radius: 50%; }
+.pill b { font-variant-numeric: tabular-nums; }
 .icon-btn {
-  border: 1px solid var(--border); background: transparent; color: var(--ink);
-  border-radius: 8px; padding: 6px 12px; font-size: 13px; cursor: pointer;
+  border: 1px solid var(--border); background: var(--surface); color: var(--ink);
+  border-radius: 9px; padding: 6px 12px; font-size: 13px; cursor: pointer;
 }
+.icon-btn:hover { border-color: var(--s1); }
 
-main { max-width: 1180px; margin: 0 auto; padding: 16px 20px 40px; }
-.tiles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 16px; }
-.tile { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
-.tile .label { font-size: 12px; color: var(--ink2); margin-bottom: 6px; }
-.tile .value { font-size: 28px; font-weight: 600; letter-spacing: -0.5px; }
+/* ---------- 主体 ---------- */
+main { max-width: 1180px; margin: 0 auto; padding: 18px 22px 46px; }
+
+.tiles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 16px; }
+.tile {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  padding: 16px 18px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; gap: 6px;
+}
+.tile .label { font-size: 12px; color: var(--ink2); display: flex; align-items: center; gap: 6px; }
+.tile .value { font-size: 30px; font-weight: 700; letter-spacing: -0.5px; font-variant-numeric: tabular-nums; }
 .tile .value .unit { font-size: 13px; font-weight: 400; color: var(--muted); margin-left: 3px; }
 
-.charts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.charts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
 .charts .wide { grid-column: 1 / -1; }
-.chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 12px 4px; }
-.chart-card .title { font-size: 13px; color: var(--ink2); margin-bottom: 2px; }
-.chart { width: 100%; height: 200px; }
+.chart-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  padding: 14px 14px 6px; box-shadow: var(--shadow);
+}
+.chart-card .title { font-size: 13px; color: var(--ink2); margin-bottom: 4px; font-weight: 600; }
+.chart { width: 100%; height: 220px; }
 
-.table-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; overflow-x: auto; }
-.table-card .title { font-size: 13px; color: var(--ink2); margin-bottom: 6px; }
-.legend-note { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-th, td { padding: 6px 8px; text-align: left; border-bottom: 1px solid var(--grid); }
-th { color: var(--muted); font-weight: 500; font-size: 11px; }
+.table-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  padding: 14px 16px; box-shadow: var(--shadow); overflow: hidden;
+}
+.table-card .title { font-size: 13px; color: var(--ink2); margin-bottom: 4px; font-weight: 600; }
+.legend-note { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.table-scroll { max-height: 420px; overflow-y: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+thead th { position: sticky; top: 0; background: var(--surface); z-index: 2; }
+th, td { padding: 7px 9px; text-align: left; border-bottom: 1px solid var(--grid); }
+th { color: var(--muted); font-weight: 600; font-size: 11.5px; }
 td.num, th.num { font-variant-numeric: tabular-nums; text-align: right; }
-tr:last-child td { border-bottom: none; }
+tbody tr:last-child td { border-bottom: none; }
 tr.alert-row { background: color-mix(in srgb, var(--critical) 8%, transparent); }
 tr.warn-row { background: color-mix(in srgb, #fab219 8%, transparent); }
 tr.alert-row td:first-child { border-left: 3px solid var(--critical); }
@@ -106,9 +133,14 @@ tr.warn-row td:first-child { border-left: 3px solid #fab219; }
 .badge-fire { background: var(--critical); color: #fff; }
 .badge-vib { background: #fab219; color: #1a1a1a; }
 
+footer {
+  margin-top: 24px; text-align: center; color: var(--muted); font-size: 12px;
+}
+
 @media (max-width: 900px) {
   .tiles { grid-template-columns: repeat(2, 1fr); }
   .charts { grid-template-columns: 1fr; }
+  .brand h1 { font-size: 14px; }
 }
 </style>
 </head>
@@ -116,6 +148,7 @@ tr.warn-row td:first-child { border-left: 3px solid #fab219; }
 
 <div id="gate">
   <div class="gate-card">
+    <div class="logo">🛰️</div>
     <h1>监测节点数据平台</h1>
     <div class="sub">滑坡泥石流 &amp; 野火一体化监测系统</div>
     <input id="pin" type="password" placeholder="访问口令" inputmode="numeric">
@@ -126,20 +159,24 @@ tr.warn-row td:first-child { border-left: 3px solid #fab219; }
 </div>
 
 <header class="hidden" id="main">
-  <h1>🛰️ 滑坡泥石流&amp;野火一体化监测节点</h1>
+  <div class="brand">
+    <h1>🛰️ 滑坡泥石流&amp;野火一体化监测节点</h1>
+    <span class="sub">数据来源：STM32 四路传感器 → 4G MQTT 实时上传</span>
+  </div>
   <span class="spacer"></span>
   <span class="pill"><span class="dot" id="mqtt-dot"></span><span id="mqtt-text">连接中…</span></span>
-  <span class="pill">消息 <b id="msg-count">0</b> 条</span>
-  <button class="icon-btn" onclick="toggleTheme()">🌓</button>
+  <span class="pill">📊 数据 <b id="msg-count">0</b> 条</span>
+  <span class="pill">🕐 更新于 <b id="last-time">--</b></span>
+  <button class="icon-btn" onclick="toggleTheme()">🌓 深浅色</button>
 </header>
 
 <main class="hidden" id="content">
   <div class="tiles">
-    <div class="tile"><div class="label">环境温度</div><div class="value"><span id="v-t">--</span><span class="unit">°C</span></div></div>
-    <div class="tile"><div class="label">环境湿度</div><div class="value"><span id="v-h">--</span><span class="unit">%RH</span></div></div>
-    <div class="tile"><div class="label">电池电压</div><div class="value"><span id="v-v">--</span><span class="unit">V</span></div></div>
-    <div class="tile"><div class="label">烟雾浓度</div><div class="value"><span id="v-s">--</span><span class="unit"></span></div></div>
-    <div class="tile"><div class="label">信号强度</div><div class="value"><span id="v-rssi">--</span><span class="unit">%</span></div></div>
+    <div class="tile"><div class="label">🌡️ 环境温度</div><div class="value"><span id="v-t">--</span><span class="unit">°C</span></div></div>
+    <div class="tile"><div class="label">💧 环境湿度</div><div class="value"><span id="v-h">--</span><span class="unit">%RH</span></div></div>
+    <div class="tile"><div class="label">🔋 电池电压</div><div class="value"><span id="v-v">--</span><span class="unit">V</span></div></div>
+    <div class="tile"><div class="label">💨 烟雾浓度</div><div class="value"><span id="v-s">--</span><span class="unit"></span></div></div>
+    <div class="tile"><div class="label">📶 信号强度</div><div class="value"><span id="v-rssi">--</span><span class="unit">%</span></div></div>
   </div>
 
   <div class="charts">
@@ -149,22 +186,28 @@ tr.warn-row td:first-child { border-left: 3px solid #fab219; }
   </div>
 
   <div class="table-card">
-    <div class="title">最近消息（新→旧，仅本页面会话内数据）</div>
-    <div class="legend-note">🔥 烟雾超标（&gt;0.3）　⚠️ 振动异常（|a|&gt;0.3）</div>
-    <table>
-      <thead><tr><th>时间</th><th>节点</th><th class="num">温度°C</th><th class="num">湿度%</th><th class="num">电压V</th><th class="num">烟雾</th><th class="num">信号%</th></tr></thead>
-      <tbody id="tbody"></tbody>
-    </table>
+    <div class="title">数据记录（最近 30 条，新→旧）</div>
+    <div class="legend-note">🔥 烟雾超标（&gt;0.3）　⚠️ 振动异常（合加速度偏离 1g 超过 0.3）</div>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>时间</th><th>节点</th><th class="num">温度°C</th><th class="num">湿度%</th><th class="num">电压V</th><th class="num">烟雾</th><th class="num">信号%</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
   </div>
+
+  <footer>滑坡泥石流&amp;野火一体化监测节点 · 数据经 MQTT 实时上传 · 图表与告警随数据自动更新</footer>
 </main>
 
 <script>
-const PIN = "123456";           // 访问口令（静态站无法做真鉴权，仅演示用）
+const PIN = "123456";
 const WS_URL = "wss://broker.emqx.io:8084/mqtt";
 const TOPIC = "diansai/node1/data";
+const HISTORY_TOPIC = "diansai/node1/history";
 
 let history = [];
 let charts = null;
+let lastTs = 0;
 
 const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 
@@ -186,13 +229,37 @@ function connect() {
   });
   client.on('connect', () => {
     client.subscribe(TOPIC);
+    client.subscribe(HISTORY_TOPIC);   /* 保留的历史 30 条，秒出曲线 */
     setMqtt(true);
   });
   client.on('close', () => setMqtt(false));
   client.on('message', (topic, payload) => {
+    if (topic === HISTORY_TOPIC) {
+      try {
+        const arr = JSON.parse(payload.toString());
+        if (Array.isArray(arr) && arr.length) {
+          /* 合并去重（历史每 5 秒更新一次，避免整页替换闪烁） */
+          const seen = new Set(history.map(d => d.ts));
+          for (const d of arr) {
+            if (d && d.ts != null && !seen.has(d.ts)) {
+              seen.add(d.ts);
+              history.push(d);
+            }
+          }
+          history.sort((a, b) => a.ts - b.ts);
+          if (history.length > 300) history = history.slice(-300);
+          lastTs = Math.max(...history.map(d => d.ts));
+          render();
+        }
+      } catch (e) { /* 忽略 */ }
+      return;
+    }
     try {
       const d = JSON.parse(payload.toString());
       d.ts = d.ts || Date.now() / 1000;
+      if (d.ts === lastTs) return;            /* 与历史末尾去重 */
+      if (d.ts < lastTs) return;              /* 旧数据跳过 */
+      lastTs = d.ts;
       history.push(d);
       if (history.length > 300) history.shift();
       render();
@@ -204,7 +271,17 @@ function setMqtt(up) {
   const dot = document.getElementById('mqtt-dot');
   const txt = document.getElementById('mqtt-text');
   dot.style.background = up ? css('--good') : css('--critical');
-  txt.textContent = up ? '● MQTT 在线' : '● MQTT 离线';
+  txt.textContent = up ? '● 实时连接' : '● 连接中断';
+}
+
+function fmtTime(ts) {
+  const d = new Date(ts * 1000);
+  const now = Date.now() / 1000;
+  const diff = Math.max(0, Math.round(now - ts));
+  const hhmmss = d.toLocaleTimeString('zh-CN', { hour12: false });
+  if (diff < 60) return hhmmss + '（' + diff + '秒前）';
+  if (diff < 3600) return hhmmss + '（' + Math.floor(diff / 60) + '分钟前）';
+  return hhmmss;
 }
 
 function baseOption(time, data, color, unit) {
@@ -280,20 +357,23 @@ function render() {
   document.getElementById('v-s').textContent = f(last.smoke, 3);
   document.getElementById('v-rssi').textContent = last.rssi != null ? last.rssi : '--';
   document.getElementById('msg-count').textContent = history.length;
+  document.getElementById('last-time').textContent = last.ts ? fmtTime(last.ts) : '--';
 
   const time = history.map(d => new Date(d.ts * 1000).toLocaleTimeString('zh-CN', { hour12: false }));
   charts[0].setOption(baseOption(time, history.map(d => d.t), css('--s1'), '°C'));
   charts[1].setOption(baseOption(time, history.map(d => d.h), css('--s2'), '%RH'));
   charts[2].setOption(vibOption(time, history));
 
-  document.getElementById('tbody').innerHTML = history.slice(-20).reverse().map(d => {
+  document.getElementById('tbody').innerHTML = history.slice(-30).reverse().map(d => {
     const fire = d.smoke != null && d.smoke > 0.3;
-    const vib = d.ax != null && (Math.abs(d.ax) > 0.3 || Math.abs(d.ay) > 0.3);
+    const mag = d.ax != null && d.ay != null && d.az != null
+      ? Math.sqrt(d.ax * d.ax + d.ay * d.ay + d.az * d.az) : 1;
+    const vib = d.ax != null && Math.abs(mag - 1) > 0.3;
     const cls = fire ? 'alert-row' : (vib ? 'warn-row' : '');
     const badge = fire ? '<span class="badge badge-fire">🔥 烟雾超标</span>'
                  : vib ? '<span class="badge badge-vib">⚠️ 振动异常</span>' : '';
     return `<tr class="${cls}">
-      <td class="num">${new Date(d.ts * 1000).toLocaleTimeString('zh-CN', { hour12: false })}${badge}</td>
+      <td class="num">${fmtTime(d.ts)}${badge}</td>
       <td>${d.id || '--'}</td>
       <td class="num">${f(d.t, 1)}</td>
       <td class="num">${f(d.h, 1)}</td>
