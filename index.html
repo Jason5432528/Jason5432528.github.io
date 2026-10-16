@@ -218,6 +218,8 @@ footer {
   <div class="charts">
     <div class="chart-card"><div class="title">温度分布（直方图）</div><div class="chart" id="c4"></div></div>
     <div class="chart-card"><div class="title">各指标波动范围（min–max）</div><div class="chart" id="c5"></div></div>
+    <div class="chart-card"><div class="title">24 小时温度趋势（小时均值，SQLite 持久存储）</div><div class="chart" id="c6"></div></div>
+    <div class="chart-card"><div class="title">24 小时湿度趋势（小时均值）</div><div class="chart" id="c7"></div></div>
   </div>
 
   <div class="section-title">数据记录</div>
@@ -240,8 +242,10 @@ const PIN = "123456";
 const WS_URL = "wss://broker.emqx.io:8084/mqtt";
 const TOPIC = "diansai/node1/data";
 const HISTORY_TOPIC = "diansai/node1/history";
+const HOURLY_TOPIC = "diansai/node1/history_24h";
 
 let history = [];
+let hourly = [];
 let charts = null;
 let lastTs = 0;
 
@@ -267,6 +271,7 @@ function connect() {
   client.on('connect', () => {
     client.subscribe(TOPIC);
     client.subscribe(HISTORY_TOPIC);
+    client.subscribe(HOURLY_TOPIC);
     setMqtt(true);
   });
   client.on('close', () => setMqtt(false));
@@ -284,6 +289,13 @@ function connect() {
           lastTs = Math.max(...history.map(d => d.ts));
           render();
         }
+      } catch (e) {}
+      return;
+    }
+    if (topic === HOURLY_TOPIC) {
+      try {
+        const arr = JSON.parse(payload.toString());
+        if (Array.isArray(arr)) { hourly = arr; render(); }
       } catch (e) {}
       return;
     }
@@ -467,7 +479,9 @@ function render() {
               echarts.init(document.getElementById('c2')),
               echarts.init(document.getElementById('c3')),
               echarts.init(document.getElementById('c4')),
-              echarts.init(document.getElementById('c5'))];
+              echarts.init(document.getElementById('c5')),
+              echarts.init(document.getElementById('c6')),
+              echarts.init(document.getElementById('c7'))];
   }
   const last = history[history.length - 1] || {};
   document.getElementById('v-t').textContent = f(last.t, 1);
@@ -489,6 +503,11 @@ function render() {
   charts[2].setOption(vibLine(time, history));
   charts[3].setOption(tempHistogram(history));
   charts[4].setOption(rangeChart(history));
+
+  /* 24 小时趋势（小时均值） */
+  const htime = hourly.map(d => new Date(d.ts * 1000).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false }));
+  charts[5].setOption(baseLine(htime, hourly.map(d => d.t), css('--s1'), '°C'));
+  charts[6].setOption(baseLine(htime, hourly.map(d => d.h), css('--s2'), '%RH'));
 
   /* 数据分析统计 */
   const metric = (arr) => { const v = arr.filter(x => x != null); return v.length ? [Math.min(...v), Math.max(...v), v.reduce((a, b) => a + b, 0) / v.length] : null; };
