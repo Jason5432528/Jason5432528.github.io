@@ -19,7 +19,7 @@
   --border: rgba(11,11,11,0.10);
   --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #6250d6;
   --good: #0ca30c; --critical: #d03b3b;
-  --shadow: 0 1px 3px rgba(11,11,11,0.05);
+  --shadow: 0 1px 3px rgba(11,11,11,0.06);
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
@@ -63,14 +63,13 @@ body {
   width: 100%; padding: 11px; margin-top: 12px; border: none; border-radius: 9px;
   background: var(--s1); color: #fff; font-size: 15px; cursor: pointer;
 }
-.gate-card button:hover { opacity: 0.92; }
 .gate-card .err { color: var(--critical); font-size: 13px; margin-top: 10px; min-height: 18px; text-align: center; }
 .gate-card .hint { color: var(--muted); font-size: 12px; margin-top: 14px; text-align: center; }
 
 /* ---------- 头部 ---------- */
 header {
   display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-  padding: 16px 22px; border-bottom: 1px solid var(--border);
+  padding: 15px 22px; border-bottom: 1px solid var(--border);
   background: var(--surface); position: sticky; top: 0; z-index: 10;
 }
 .brand { display: flex; flex-direction: column; }
@@ -91,19 +90,40 @@ header .spacer { flex: 1; }
 .icon-btn:hover { border-color: var(--s1); }
 
 /* ---------- 主体 ---------- */
-main { max-width: 1180px; margin: 0 auto; padding: 18px 22px 46px; }
+main { max-width: 1180px; margin: 0 auto; padding: 20px 22px 46px; }
 
-.tiles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 16px; }
+.section-title {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 15px; font-weight: 700; margin: 26px 0 12px;
+}
+.section-title::before {
+  content: ""; width: 4px; height: 18px; border-radius: 2px; background: var(--s1);
+}
+.section-title .sub { font-size: 12px; font-weight: 400; color: var(--muted); }
+
+.tiles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
 .tile {
   background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-  padding: 16px 18px; box-shadow: var(--shadow);
+  padding: 15px 17px; box-shadow: var(--shadow);
   display: flex; flex-direction: column; gap: 6px;
 }
 .tile .label { font-size: 12px; color: var(--ink2); display: flex; align-items: center; gap: 6px; }
-.tile .value { font-size: 30px; font-weight: 700; letter-spacing: -0.5px; font-variant-numeric: tabular-nums; }
+.tile .value { font-size: 29px; font-weight: 700; letter-spacing: -0.5px; font-variant-numeric: tabular-nums; }
 .tile .value .unit { font-size: 13px; font-weight: 400; color: var(--muted); margin-left: 3px; }
+.tile .meta { font-size: 11px; color: var(--muted); }
 
-.charts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+/* 分析统计卡（小卡） */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.stat {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  padding: 14px 16px; box-shadow: var(--shadow);
+}
+.stat .label { font-size: 12px; color: var(--ink2); margin-bottom: 6px; }
+.stat .big { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.stat .big .unit { font-size: 12px; font-weight: 400; color: var(--muted); margin-left: 2px; }
+.stat .range { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+.charts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
 .charts .wide { grid-column: 1 / -1; }
 .chart-card {
   background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
@@ -114,11 +134,11 @@ main { max-width: 1180px; margin: 0 auto; padding: 18px 22px 46px; }
 
 .table-card {
   background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-  padding: 14px 16px; box-shadow: var(--shadow); overflow: hidden;
+  padding: 14px 16px; box-shadow: var(--shadow); overflow: hidden; margin-top: 12px;
 }
 .table-card .title { font-size: 13px; color: var(--ink2); margin-bottom: 4px; font-weight: 600; }
 .legend-note { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
-.table-scroll { max-height: 420px; overflow-y: auto; }
+.table-scroll { max-height: 400px; overflow-y: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 thead th { position: sticky; top: 0; background: var(--surface); z-index: 2; }
 th, td { padding: 7px 9px; text-align: left; border-bottom: 1px solid var(--grid); }
@@ -134,11 +154,12 @@ tr.warn-row td:first-child { border-left: 3px solid #fab219; }
 .badge-vib { background: #fab219; color: #1a1a1a; }
 
 footer {
-  margin-top: 24px; text-align: center; color: var(--muted); font-size: 12px;
+  margin-top: 26px; text-align: center; color: var(--muted); font-size: 12px;
 }
 
 @media (max-width: 900px) {
   .tiles { grid-template-columns: repeat(2, 1fr); }
+  .stats { grid-template-columns: repeat(2, 1fr); }
   .charts { grid-template-columns: 1fr; }
   .brand h1 { font-size: 14px; }
 }
@@ -161,7 +182,7 @@ footer {
 <header class="hidden" id="main">
   <div class="brand">
     <h1>🛰️ 滑坡泥石流&amp;野火一体化监测节点</h1>
-    <span class="sub">数据来源：STM32 四路传感器 → 4G MQTT 实时上传</span>
+    <span class="sub">STM32 四路传感器 · 4G MQTT 实时上传 · 每 10 秒一条</span>
   </div>
   <span class="spacer"></span>
   <span class="pill"><span class="dot" id="mqtt-dot"></span><span id="mqtt-text">连接中…</span></span>
@@ -171,22 +192,37 @@ footer {
 </header>
 
 <main class="hidden" id="content">
+
   <div class="tiles">
-    <div class="tile"><div class="label">🌡️ 环境温度</div><div class="value"><span id="v-t">--</span><span class="unit">°C</span></div></div>
-    <div class="tile"><div class="label">💧 环境湿度</div><div class="value"><span id="v-h">--</span><span class="unit">%RH</span></div></div>
-    <div class="tile"><div class="label">🔋 电池电压</div><div class="value"><span id="v-v">--</span><span class="unit">V</span></div></div>
-    <div class="tile"><div class="label">💨 烟雾浓度</div><div class="value"><span id="v-s">--</span><span class="unit"></span></div></div>
-    <div class="tile"><div class="label">📶 信号强度</div><div class="value"><span id="v-rssi">--</span><span class="unit">%</span></div></div>
+    <div class="tile"><div class="label">🌡️ 环境温度</div><div class="value"><span id="v-t">--</span><span class="unit">°C</span></div><div class="meta" id="m-t">--</div></div>
+    <div class="tile"><div class="label">💧 环境湿度</div><div class="value"><span id="v-h">--</span><span class="unit">%RH</span></div><div class="meta" id="m-h">--</div></div>
+    <div class="tile"><div class="label">🔋 电池电压</div><div class="value"><span id="v-v">--</span><span class="unit">V</span></div><div class="meta" id="m-v">--</div></div>
+    <div class="tile"><div class="label">💨 烟雾浓度</div><div class="value"><span id="v-s">--</span><span class="unit"></span></div><div class="meta" id="m-s">--</div></div>
+    <div class="tile"><div class="label">📶 信号强度</div><div class="value"><span id="v-rssi">--</span><span class="unit">%</span></div><div class="meta" id="m-r">--</div></div>
   </div>
 
+  <div class="section-title">实时曲线</div>
   <div class="charts">
     <div class="chart-card"><div class="title">环境温度（°C）</div><div class="chart" id="c1"></div></div>
     <div class="chart-card"><div class="title">环境湿度（%RH）</div><div class="chart" id="c2"></div></div>
     <div class="chart-card wide"><div class="title">三轴振动（g）</div><div class="chart" id="c3"></div></div>
   </div>
 
+  <div class="section-title">📊 历史数据分析<span class="sub">（基于最近 30 条数据自动统计）</span></div>
+  <div class="stats">
+    <div class="stat"><div class="label">🌡️ 温度统计</div><div class="big"><span id="a-tavg">--</span><span class="unit">°C 均值</span></div><div class="range" id="a-trange">最高 -- / 最低 --</div></div>
+    <div class="stat"><div class="label">💧 湿度统计</div><div class="big"><span id="a-havg">--</span><span class="unit">% 均值</span></div><div class="range" id="a-hrange">最高 -- / 最低 --</div></div>
+    <div class="stat"><div class="label">📳 振动强度</div><div class="big"><span id="a-vib">--</span><span class="unit">g 峰值</span></div><div class="range" id="a-vibrange">偏离 1g 最大值</div></div>
+    <div class="stat"><div class="label">🚨 告警统计</div><div class="big"><span id="a-alert">0</span><span class="unit">次</span></div><div class="range" id="a-alertrange">--</div></div>
+  </div>
+  <div class="charts">
+    <div class="chart-card"><div class="title">温度分布（直方图）</div><div class="chart" id="c4"></div></div>
+    <div class="chart-card"><div class="title">各指标波动范围（min–max）</div><div class="chart" id="c5"></div></div>
+  </div>
+
+  <div class="section-title">数据记录</div>
   <div class="table-card">
-    <div class="title">数据记录（最近 30 条，新→旧）</div>
+    <div class="title">最近 30 条（新→旧）</div>
     <div class="legend-note">🔥 烟雾超标（&gt;0.3）　⚠️ 振动异常（合加速度偏离 1g 超过 0.3）</div>
     <div class="table-scroll">
       <table>
@@ -196,7 +232,7 @@ footer {
     </div>
   </div>
 
-  <footer>滑坡泥石流&amp;野火一体化监测节点 · 数据经 MQTT 实时上传 · 图表与告警随数据自动更新</footer>
+  <footer>滑坡泥石流&amp;野火一体化监测节点 · 数据经 MQTT 实时上传 · 图表与统计随数据自动更新</footer>
 </main>
 
 <script>
@@ -210,6 +246,7 @@ let charts = null;
 let lastTs = 0;
 
 const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const f = (v, d) => v == null ? '--' : Number(v).toFixed(d);
 
 function doGate() {
   if (document.getElementById('pin').value === PIN) {
@@ -229,7 +266,7 @@ function connect() {
   });
   client.on('connect', () => {
     client.subscribe(TOPIC);
-    client.subscribe(HISTORY_TOPIC);   /* 保留的历史 30 条，秒出曲线 */
+    client.subscribe(HISTORY_TOPIC);
     setMqtt(true);
   });
   client.on('close', () => setMqtt(false));
@@ -238,32 +275,27 @@ function connect() {
       try {
         const arr = JSON.parse(payload.toString());
         if (Array.isArray(arr) && arr.length) {
-          /* 合并去重（历史每 5 秒更新一次，避免整页替换闪烁） */
           const seen = new Set(history.map(d => d.ts));
           for (const d of arr) {
-            if (d && d.ts != null && !seen.has(d.ts)) {
-              seen.add(d.ts);
-              history.push(d);
-            }
+            if (d && d.ts != null && !seen.has(d.ts)) { seen.add(d.ts); history.push(d); }
           }
           history.sort((a, b) => a.ts - b.ts);
           if (history.length > 300) history = history.slice(-300);
           lastTs = Math.max(...history.map(d => d.ts));
           render();
         }
-      } catch (e) { /* 忽略 */ }
+      } catch (e) {}
       return;
     }
     try {
       const d = JSON.parse(payload.toString());
       d.ts = d.ts || Date.now() / 1000;
-      if (d.ts === lastTs) return;            /* 与历史末尾去重 */
-      if (d.ts < lastTs) return;              /* 旧数据跳过 */
+      if (d.ts <= lastTs) return;
       lastTs = d.ts;
       history.push(d);
       if (history.length > 300) history.shift();
       render();
-    } catch (e) { /* 忽略非 JSON */ }
+    } catch (e) {}
   });
 }
 
@@ -276,15 +308,14 @@ function setMqtt(up) {
 
 function fmtTime(ts) {
   const d = new Date(ts * 1000);
-  const now = Date.now() / 1000;
-  const diff = Math.max(0, Math.round(now - ts));
+  const diff = Math.max(0, Math.round(Date.now() / 1000 - ts));
   const hhmmss = d.toLocaleTimeString('zh-CN', { hour12: false });
   if (diff < 60) return hhmmss + '（' + diff + '秒前）';
   if (diff < 3600) return hhmmss + '（' + Math.floor(diff / 60) + '分钟前）';
   return hhmmss;
 }
 
-function baseOption(time, data, color, unit) {
+function baseLine(time, data, color, unit) {
   return {
     animation: false,
     grid: { left: 44, right: 12, top: 14, bottom: 22 },
@@ -312,7 +343,7 @@ function baseOption(time, data, color, unit) {
   };
 }
 
-function vibOption(time, d) {
+function vibLine(time, d) {
   const series = ['ax', 'ay', 'az'].map((k, i) => ({
     name: k.toUpperCase() + '轴', type: 'line', data: d.map(x => x[k]),
     showSymbol: false, lineStyle: { width: 2, color: [css('--s3'), css('--s4'), css('--s5')][i] },
@@ -343,26 +374,145 @@ function vibOption(time, d) {
   };
 }
 
+/* 温度直方图 */
+function tempHistogram(data) {
+  const temps = data.map(d => d.t).filter(v => v != null);
+  if (temps.length < 2) return { animation: false };
+  const min = Math.floor(Math.min(...temps) * 2) / 2;
+  const max = Math.ceil(Math.max(...temps) * 2) / 2;
+  const step = 0.5;
+  const bins = [];
+  for (let b = min; b < max; b += step) bins.push([b, b + step, 0]);
+  for (const t of temps) {
+    for (const bin of bins) {
+      if (t >= bin[0] && t < bin[1]) { bin[2]++; break; }
+    }
+  }
+  return {
+    animation: false,
+    grid: { left: 44, right: 12, top: 14, bottom: 24 },
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+    xAxis: {
+      type: 'category', data: bins.map(b => b[0].toFixed(1) + '~' + b[1].toFixed(1)),
+      axisLabel: { color: css('--muted'), fontSize: 10 }, axisTick: { show: false },
+      axisLine: { lineStyle: { color: css('--axis') } },
+    },
+    yAxis: {
+      type: 'value', name: '次数', nameTextStyle: { color: css('--muted'), fontSize: 10 },
+      splitLine: { lineStyle: { color: css('--grid') } },
+      axisLabel: { color: css('--muted'), fontSize: 10 }, minInterval: 1,
+    },
+    series: [{
+      type: 'bar', data: bins.map(b => b[2]), barWidth: '62%',
+      itemStyle: { color: css('--s1'), borderRadius: [3, 3, 0, 0] },
+    }],
+  };
+}
+
+/* 指标波动范围（min–max 横向条形） */
+function rangeChart(data) {
+  const metric = (arr) => {
+    const v = arr.filter(x => x != null);
+    return v.length ? [Math.min(...v), Math.max(...v)] : [0, 0];
+  };
+  const tt = metric(data.map(d => d.t));
+  const hh = metric(data.map(d => d.h));
+  const sm = metric(data.map(d => d.smoke));
+  const vibs = data.map(d => {
+    if (d.ax == null || d.ay == null || d.az == null) return null;
+    return Math.abs(Math.sqrt(d.ax * d.ax + d.ay * d.ay + d.az * d.az) - 1);
+  }).filter(x => x != null);
+  const vv = vibs.length ? [0, Math.max(...vibs)] : [0, 0];
+  const rows = [
+    ['温度', tt, '°C'],
+    ['湿度', hh, '%'],
+    ['烟雾', sm, ''],
+    ['振动偏离', vv, 'g'],
+  ];
+  return {
+    animation: false,
+    grid: { left: 70, right: 30, top: 10, bottom: 24 },
+    tooltip: {
+      trigger: 'axis', axisPointer: { type: 'shadow' },
+      formatter: (ps) => {
+        const p = ps[0];
+        const r = rows[p.dataIndex];
+        return r[0] + '<br>最低 ' + r[1][0].toFixed(2) + ' ～ 最高 ' + r[1][1].toFixed(2) + r[2];
+      },
+    },
+    xAxis: {
+      type: 'value',
+      splitLine: { lineStyle: { color: css('--grid') } },
+      axisLabel: { color: css('--muted'), fontSize: 10 },
+    },
+    yAxis: {
+      type: 'category', data: rows.map(r => r[0]),
+      axisLabel: { color: css('--ink2'), fontSize: 11 },
+      axisLine: { lineStyle: { color: css('--axis') } }, axisTick: { show: false },
+    },
+    series: [{
+      type: 'bar', data: rows.map(r => r[1]), barWidth: '52%',
+      itemStyle: { color: css('--s2'), borderRadius: [0, 3, 3, 0] },
+      label: {
+        show: true, position: 'right', fontSize: 10, color: css('--muted'),
+        formatter: (p) => p.data[0].toFixed(2) + '~' + p.data[1].toFixed(2),
+      },
+    }],
+  };
+}
+
 function render() {
   if (!charts) {
     charts = [echarts.init(document.getElementById('c1')),
               echarts.init(document.getElementById('c2')),
-              echarts.init(document.getElementById('c3'))];
+              echarts.init(document.getElementById('c3')),
+              echarts.init(document.getElementById('c4')),
+              echarts.init(document.getElementById('c5'))];
   }
   const last = history[history.length - 1] || {};
-  const f = (v, d) => v == null ? '--' : Number(v).toFixed(d);
   document.getElementById('v-t').textContent = f(last.t, 1);
   document.getElementById('v-h').textContent = f(last.h, 1);
   document.getElementById('v-v').textContent = f(last.v, 2);
   document.getElementById('v-s').textContent = f(last.smoke, 3);
   document.getElementById('v-rssi').textContent = last.rssi != null ? last.rssi : '--';
+  document.getElementById('m-t').textContent = last.t != null ? '最近更新 ' + fmtTime(last.ts) : '等待数据…';
+  document.getElementById('m-h').textContent = last.h != null ? '数据条数 ' + history.length : '等待数据…';
+  document.getElementById('m-v').textContent = last.v != null ? '固定 3.3V 供电' : '等待数据…';
+  document.getElementById('m-s').textContent = last.smoke != null ? '阈值 0.3 告警' : '等待数据…';
+  document.getElementById('m-r').textContent = last.rssi != null ? '4G 信号质量' : '等待数据…';
   document.getElementById('msg-count').textContent = history.length;
   document.getElementById('last-time').textContent = last.ts ? fmtTime(last.ts) : '--';
 
   const time = history.map(d => new Date(d.ts * 1000).toLocaleTimeString('zh-CN', { hour12: false }));
-  charts[0].setOption(baseOption(time, history.map(d => d.t), css('--s1'), '°C'));
-  charts[1].setOption(baseOption(time, history.map(d => d.h), css('--s2'), '%RH'));
-  charts[2].setOption(vibOption(time, history));
+  charts[0].setOption(baseLine(time, history.map(d => d.t), css('--s1'), '°C'));
+  charts[1].setOption(baseLine(time, history.map(d => d.h), css('--s2'), '%RH'));
+  charts[2].setOption(vibLine(time, history));
+  charts[3].setOption(tempHistogram(history));
+  charts[4].setOption(rangeChart(history));
+
+  /* 数据分析统计 */
+  const metric = (arr) => { const v = arr.filter(x => x != null); return v.length ? [Math.min(...v), Math.max(...v), v.reduce((a, b) => a + b, 0) / v.length] : null; };
+  const tt = metric(history.map(d => d.t));
+  const hh = metric(history.map(d => d.h));
+  const vibs = history.map(d => {
+    if (d.ax == null || d.ay == null || d.az == null) return null;
+    return Math.abs(Math.sqrt(d.ax * d.ax + d.ay * d.ay + d.az * d.az) - 1);
+  }).filter(x => x != null);
+  const vmax = vibs.length ? Math.max(...vibs) : null;
+  let fireN = 0, vibN = 0;
+  for (const d of history) {
+    if (d.smoke != null && d.smoke > 0.3) fireN++;
+    const mag = d.ax != null && d.ay != null && d.az != null
+      ? Math.sqrt(d.ax * d.ax + d.ay * d.ay + d.az * d.az) : 1;
+    if (d.ax != null && Math.abs(mag - 1) > 0.3) vibN++;
+  }
+  document.getElementById('a-tavg').textContent = tt ? tt[2].toFixed(1) : '--';
+  document.getElementById('a-trange').textContent = tt ? '最高 ' + tt[1].toFixed(1) + ' / 最低 ' + tt[0].toFixed(1) : '--';
+  document.getElementById('a-havg').textContent = hh ? hh[2].toFixed(1) : '--';
+  document.getElementById('a-hrange').textContent = hh ? '最高 ' + hh[1].toFixed(1) + ' / 最低 ' + hh[0].toFixed(1) : '--';
+  document.getElementById('a-vib').textContent = vmax != null ? vmax.toFixed(3) : '--';
+  document.getElementById('a-alert').textContent = fireN + vibN;
+  document.getElementById('a-alertrange').textContent = '🔥 ' + fireN + ' 次 · ⚠️ ' + vibN + ' 次';
 
   document.getElementById('tbody').innerHTML = history.slice(-30).reverse().map(d => {
     const fire = d.smoke != null && d.smoke > 0.3;
